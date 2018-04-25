@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>2GIS Earth</title>
+
+    <script src="https://www.webglearth.com/v2/api.js"></script>
+    <style>
+        html, body {
+            padding: 0;
+            margin: 0;
+        }
+        #map {
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: #000;
+            position: absolute !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        var earth = new WE.map('map', {
+            atmosphere: true,
+            center: [54.97973, 82.93888],
+            zoom: 3
+        });
+        WE.tileLayer('https://tile{s}.maps.2gis.com/tiles?x={x}&y={y}&z={z}&v=1&ts=online_sd', {
+            minZoom: 0,
+            maxZoom: 18,
+            attribution: '2GIS',
+            subdomains: '0123'
+        }).addTo(earth);
+        WE.marker([54.980156831455, 82.897440725094]).addTo(earth);
+    </script>
+</body>
+</html>
