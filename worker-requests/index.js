@@ -1,5 +1,25 @@
 const worker = new Worker('./worker.js');
 
+function parseQuery() {
+    const res = {};
+    location.search.slice(1).split('&')
+        .map((str) => str.split('='))
+        .forEach((couple) => {
+            res[couple[0]] = couple[1];
+        });
+    return res;
+}
+
+let delay = 150;
+
+const query = parseQuery();
+
+if (query && query.delay) {
+    delay = Number(query.delay);
+}
+
+console.log('delay ' + delay);
+
 worker.onmessage = (ev) => {
     console.log('main receive worker message at ' + String(Date.now()).slice(-7));
     const div = document.createElement('div');
@@ -19,4 +39,4 @@ setTimeout(() => {
     }
 
     console.log('main end throttle at ' + String(time).slice(-7));
-}, 300);
+}, delay);
