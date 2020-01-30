@@ -4,12 +4,10 @@ attribute vec2 a_snowFlakeVelocity;
 uniform mat3 u_projectionMatrix;
 uniform float u_time;
 uniform vec2 u_windowSize;
-varying vec4 v_color;
 void main() {
   vec2 position = mod(a_snowFlakeProps.xy + a_snowFlakeVelocity * u_time, u_windowSize);
   gl_Position = vec4((u_projectionMatrix * vec3(position, 1)).xy, 0, 1);
   gl_PointSize = 2.0 * a_snowFlakeProps.z;
-  v_color = vec4(1, 1, 1, a_snowFlakeProps.w);
 }
 `;
 
@@ -19,13 +17,11 @@ varying vec4 v_color;
 void main() {
   vec2 distToCenter = gl_PointCoord - vec2(0.5, 0.5);
   float distToCenterSquared = dot(distToCenter, distToCenter);
-  float alpha;
   if (distToCenterSquared < 0.25) {
-    alpha = v_color.w;
+    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
   } else {
-    alpha = 0.0;
+    discard;
   }
-  gl_FragColor = vec4(v_color.xyz, alpha);
 }
 `;
 
@@ -67,7 +63,7 @@ class SnowFlake {
         this.y = this.randBetween(0, -this.height);
         this.vx = this.randBetween(-3, 3);
         this.vy = this.randBetween(2, 5);
-        this.radius = this.randBetween(1, 4);
+        this.radius = this.randBetween(1, 8);
         this.alpha = this.randBetween(0.7, 1);
     }
 
@@ -136,8 +132,7 @@ class Snow {
         gl.clearColor(1, 1, 1, 0);
         gl.enable(gl.CULL_FACE);
         gl.disable(gl.DEPTH_TEST);
-        gl.enable(gl.BLEND);
-        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        gl.disable(gl.BLEND);
         gl.enableVertexAttribArray(this.snowFlakePropsAttribLocation);
         gl.enableVertexAttribArray(this.snowFlakeVelocityAttribLocation);
         gl.useProgram(this.program);
