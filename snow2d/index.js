@@ -17,3 +17,7 @@ canvas.height = height;
 const offscreen = canvas.transferControlToOffscreen();
 
 worker.postMessage({ type: 'enable', offscreen, width, height }, [offscreen]);
+
+window.addEventListener('resize', () => {
+    setTimeout(() => location.reload(), 1000);
+});

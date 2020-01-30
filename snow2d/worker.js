@@ -1,9 +1,13 @@
 const vertexShaderSource = `
 attribute vec4 a_snowFlakeProps;
+attribute vec2 a_snowFlakeVelocity;
 uniform mat3 u_projectionMatrix;
+uniform float u_time;
+uniform vec2 u_windowSize;
 varying vec4 v_color;
 void main() {
-  gl_Position = vec4((u_projectionMatrix * vec3(a_snowFlakeProps.xy, 1)).xy, 0, 1);
+  vec2 position = mod(a_snowFlakeProps.xy + a_snowFlakeVelocity * u_time, u_windowSize);
+  gl_Position = vec4((u_projectionMatrix * vec3(position, 1)).xy, 0, 1);
   gl_PointSize = 2.0 * a_snowFlakeProps.z;
   v_color = vec4(1, 1, 1, a_snowFlakeProps.w);
 }
@@ -64,7 +68,7 @@ class SnowFlake {
         this.vx = this.randBetween(-3, 3);
         this.vy = this.randBetween(2, 5);
         this.radius = this.randBetween(1, 4);
-        this.alpha = this.randBetween(0.1, 0.9);
+        this.alpha = this.randBetween(0.7, 1);
     }
 
     randBetween(min, max) {
@@ -73,14 +77,6 @@ class SnowFlake {
 
     get props() {
         return [this.x, this.y, this.radius, this.alpha];
-    }
-
-    update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        if (this.x + this.radius > this.width || this.y + this.radius > this.height) {
-            this.reset();
-        }
     }
 }
 
@@ -97,27 +93,21 @@ function projection(out, width, height) {
     return out;
 }
 
-function identity(out) {
-    out[0] = 1;
-    out[1] = 0;
-    out[2] = 0;
-    out[3] = 0;
-    out[4] = 1;
-    out[5] = 0;
-    out[6] = 0;
-    out[7] = 0;
-    out[8] = 1;
-    return out;
-}
-
 class Snow {
     constructor(canvas, width, height) {
         this.width = width;
         this.height = height;
         this.canvas = canvas;
-        const gl = (this.gl = canvas.getContext('webgl'));
 
-        this.projectionMatrix = this.getProjectionMatrix();
+        /** @type {WebGLRenderingContext} */
+        const gl = (this.gl = canvas.getContext('webgl', {
+            antialias: false,
+            premultipliedAlpha: false,
+            alpha: true,
+        }));
+
+        this.projectionMatrix = new Float32Array(9);
+        projection(this.projectionMatrix, this.width, this.height);
 
         this.snowFlakes = this.createSnowFlakes();
 
@@ -126,43 +116,54 @@ class Snow {
         const program = (this.program = createProgram(gl, vertexShader, fragmentShader));
 
         this.snowFlakePropsAttribLocation = gl.getAttribLocation(program, 'a_snowFlakeProps');
+        this.snowFlakeVelocityAttribLocation = gl.getAttribLocation(program, 'a_snowFlakeVelocity');
 
         this.projectionMatrixUniformLocation = gl.getUniformLocation(program, 'u_projectionMatrix');
+        this.timeUniformLocation = gl.getUniformLocation(program, 'u_time');
+        this.windowSizeUniformLocation = gl.getUniformLocation(program, 'u_windowSize');
 
         this.snowFlakePropsBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.snowFlakePropsBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.getBufferData(), gl.DYNAMIC_DRAW);
+
+        const snowFlakesProps = [];
+        for (const sf of this.snowFlakes) {
+            snowFlakesProps.push(sf.x, sf.y, sf.radius, sf.alpha, sf.vx, sf.vy);
+        }
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(snowFlakesProps), gl.STATIC_DRAW);
 
         gl.viewport(0, 0, this.width, this.height);
 
-        gl.clearColor(0, 0, 0, 0);
+        gl.clearColor(1, 1, 1, 0);
+        gl.enable(gl.CULL_FACE);
+        gl.disable(gl.DEPTH_TEST);
         gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         gl.enableVertexAttribArray(this.snowFlakePropsAttribLocation);
+        gl.enableVertexAttribArray(this.snowFlakeVelocityAttribLocation);
         gl.useProgram(this.program);
 
         gl.uniformMatrix3fv(this.projectionMatrixUniformLocation, false, this.projectionMatrix);
-        const [size, type, normalize, stride, offset] = [4, gl.FLOAT, false, 0, 0];
+        gl.uniform2f(this.windowSizeUniformLocation, width, height);
+
+        gl.vertexAttribPointer(this.snowFlakePropsAttribLocation, 4, gl.FLOAT, false, 6 * 4, 0);
         gl.vertexAttribPointer(
-            this.snowFlakePropsAttribLocation,
-            size,
-            type,
-            normalize,
-            stride,
-            offset,
+            this.snowFlakeVelocityAttribLocation,
+            2,
+            gl.FLOAT,
+            false,
+            6 * 4,
+            4 * 4,
         );
+
+        this.timeStart = Date.now();
 
         this.update = () => {
             const gl = this.gl;
-
             requestAnimationFrame(this.update);
 
-            this.snowFlakes.forEach((snowFlake) => snowFlake.update());
-
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.getBufferData());
-
-            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
+            const time = (Date.now() - this.timeStart) / 100;
+            gl.uniform1f(this.timeUniformLocation, time);
+            gl.clear(gl.COLOR_BUFFER_BIT);
             gl.drawArrays(gl.POINTS, 0, this.snowFlakes.length);
         };
 
@@ -176,21 +177,6 @@ class Snow {
             snowFlakes.push(new SnowFlake(this.width, this.height));
         }
         return snowFlakes;
-    }
-
-    getProjectionMatrix() {
-        const matrix = new Float32Array(9);
-        identity(matrix);
-        projection(matrix, this.width, this.height);
-        return matrix;
-    }
-
-    getBufferData() {
-        let snowFlakesProps = [];
-        for (const snowFlake of this.snowFlakes) {
-            snowFlakesProps = [...snowFlakesProps, ...snowFlake.props];
-        }
-        return new Float32Array(snowFlakesProps);
     }
 }
 
