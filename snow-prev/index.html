@@ -5,9 +5,26 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="ie=edge" />
         <title>snow preview</title>
+        <style>
+            #snow-side-1 {
+                background: #8dbde9 url(grass.png) left bottom repeat-x;
+            }
+            #snow-side-1-outer {
+                position: absolute;
+            }
+            #snow-side-1-camera {
+                position: absolute;
+                display: none;
+            }
+        </style>
     </head>
     <body>
-        <canvas id="snow-side-1"></canvas>
+        <div id="snow-side-1-outer">
+            <canvas id="snow-side-1"></canvas>
+            <img id="snow-side-1-camera" src="./video-camera.png" alt="">
+        </div>
         <script src="./index.js"></script>
     </body>
-</html>
+    <div>
+    </html>
+</div>
