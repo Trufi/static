@@ -21,3 +21,8 @@ worker.postMessage({ type: 'enable', offscreen, width, height }, [offscreen]);
 window.addEventListener('resize', () => {
     setTimeout(() => location.reload(), 1000);
 });
+
+document.getElementById('crash').addEventListener('click', () => {
+    const startTime = Date.now();
+    while (Date.now() - startTime < 10000) {}
+});
