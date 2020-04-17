@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>2GIS Map API</title>
+        <style>
+            html,
+            body,
+            #container {
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container"></div>
+        <script src="https://mapgl.2gis.com/api/js"></script>
+        <script>
+            const map = new mapgl.Map('container', {
+                center: [55.31878, 25.23584],
+                zoom: 13,
+                key: 'Your API access key',
+            });
+            const randomLngLat = () => [
+                55.31878 + (Math.random() - 0.5) * 0.07,
+                25.23584 + (Math.random() - 0.5) * 0.05,
+            ];
+            for (let i = 0; i < 300; i++) {
+                new mapgl.Marker(map, {
+                    coordinates: randomLngLat(),
+                });
+            }
+        </script>
+    </body>
+</html>
