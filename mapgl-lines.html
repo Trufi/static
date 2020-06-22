@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>2GIS Map API</title>
+        <meta name="description" content="Quckstart with 2GIS Map API" />
+        <style>
+            html,
+            body,
+            #container {
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container"></div>
+        <script src="https://mapgl.2gis.com/api/js"></script>
+        <script>
+            const center = [55.31878, 25.23584];
+            const map = new mapgl.Map('container', {
+                center,
+                zoom: 16,
+                key: '042b5b75-f847-4f2a-b695-b5f58adc9dfd',
+            });
+            const random = () => [
+                center[0] + (Math.random() - 0.5),
+                center[1] + (Math.random() - 0.5),
+            ];
+            for (let i = 0; i < 300; i++) {
+                const coordinates = [];
+                for (let j = 0; j < 10; j++) {
+                    coordinates.push(random());
+                }
+                new mapgl.Polyline(map, {
+                    coordinates,
+                });
+            }
+        </script>
+    </body>
+</html>
