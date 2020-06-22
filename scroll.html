@@ -31,7 +31,7 @@
             let eventCount = 0;
 
             const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-            container.innerHTML += /* HTML */ `<div>mac: ${isMac}</div>`;
+            container.innerHTML += /* HTML */ `<div>mac: ${isMac};</div>`;
 
             container.addEventListener('wheel', (ev) => {
                 ev.preventDefault();
@@ -48,8 +48,8 @@
 
                 container.innerHTML += /* HTML */ `<div>
                     time: ${Date.now() - startTime} dx: ${ev.deltaX} dy: ${ev.deltaY} dmode:
-                    ${ev.deltaMode} ctrl: ${ev.ctrlKey}
-                </div> `;
+                    ${ev.deltaMode} ctrl: ${ev.ctrlKey};
+                </div>`;
             });
 
             const loop = () => {
@@ -57,7 +57,7 @@
                 const delta = deltaAccumulator / eventCount;
                 if (delta) {
                     container.innerHTML += /* HTML */ `<div>
-                        delta: ${delta} accum: ${deltaAccumulator} count: ${eventCount}
+                        delta: ${delta} accum: ${deltaAccumulator} count: ${eventCount};
                     </div>`;
                 }
                 deltaAccumulator = 0;
