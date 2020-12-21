@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+
+        <style>
+            html,
+            body,
+            #map {
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <script>
+            function initMap() {
+                const map = new mapgl.Map('map', {
+                    center: [54.980125746397995, 82.89751052856447],
+                    zoom: 9,
+                    key: '042b5b75-f847-4f2a-b695-b5f58adc9dfd',
+                });
+            }
+        </script>
+        <script src="https://mapgl.2gis.com/api/js/v1?callback=initMap" async defer></script>
+    </body>
+</html>
