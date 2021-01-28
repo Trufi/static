@@ -199,7 +199,7 @@
     }
 
     function extendConfig() {
-        // DG.extend(DG.config, __LOCAL_CONFIG__);
+        DG.extend(DG.config, { protocol: 'https:' });
 
         if (DG.customConfig) {
             DG.extend(DG.config, DG.customConfig);
