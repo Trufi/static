@@ -5,8 +5,10 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <script src="./script.full.js"></script>
-        <link rel="stylesheet" href="./styles.full.dark.css" />
+        <!-- <script src="./script.full.js"></script> -->
+        <!-- <link rel="stylesheet" href="./styles.full.dark.css" /> -->
+
+        <script src="https://trufi.github.io/static/mapsapi/loader.js"></script>
 
         <style>
             html,
@@ -31,43 +33,45 @@
         <div id="map"></div>
 
         <script>
-            // change control position on touch devices
-            var options = {
-                center: [54.980156831455, 82.897440725094],
-                zoom: 13,
-                geoclicker: true,
-                worldCopyJump: true,
-                zoomControl: false,
-                fullscreenControl: false,
-            };
-            var query = parseQuery();
-            var map = (window.map = DG.map('map', getMapOptions(query, options)));
+            DG.then(function () {
+                // change control position on touch devices
+                var options = {
+                    center: [54.980156831455, 82.897440725094],
+                    zoom: 13,
+                    geoclicker: true,
+                    worldCopyJump: true,
+                    zoomControl: false,
+                    fullscreenControl: false,
+                };
+                var query = parseQuery();
+                var map = (window.map = DG.map('map', getMapOptions(query, options)));
 
-            var controlOptions = DG.Browser.mobile ? { position: 'bottomright' } : {};
-            DG.control.zoom(controlOptions).addTo(map);
-            DG.control.traffic(controlOptions).addTo(map);
-            DG.control.location(controlOptions).addTo(map);
-            DG.control.ruler(controlOptions).addTo(map);
-            if (DG.screenfull.isAvailable()) {
-                DG.control.fullscreen(controlOptions).addTo(map);
-            }
-
-            map.on('moveend', function () {
-                if (!history.replaceState) {
-                    return; // ie <= 9
+                var controlOptions = DG.Browser.mobile ? { position: 'bottomright' } : {};
+                DG.control.zoom(controlOptions).addTo(map);
+                DG.control.traffic(controlOptions).addTo(map);
+                DG.control.location(controlOptions).addTo(map);
+                DG.control.ruler(controlOptions).addTo(map);
+                if (DG.screenfull.isAvailable()) {
+                    DG.control.fullscreen(controlOptions).addTo(map);
                 }
 
-                var center = map.getCenter();
-                history.replaceState(
-                    {},
-                    document.title,
-                    '?lng=' +
-                        center.lng.toFixed(5) +
-                        '&lat=' +
-                        center.lat.toFixed(5) +
-                        '&zoom=' +
-                        map.getZoom(),
-                );
+                map.on('moveend', function () {
+                    if (!history.replaceState) {
+                        return; // ie <= 9
+                    }
+
+                    var center = map.getCenter();
+                    history.replaceState(
+                        {},
+                        document.title,
+                        '?lng=' +
+                            center.lng.toFixed(5) +
+                            '&lat=' +
+                            center.lat.toFixed(5) +
+                            '&zoom=' +
+                            map.getZoom(),
+                    );
+                });
             });
 
             function parseQuery() {
